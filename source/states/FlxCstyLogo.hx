@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.math.FlxPoint;
+import states.MenuState.MainMenuState;
 
 typedef UpdPix =
 {
@@ -17,33 +18,21 @@ class FlxCstyLogo extends FlxState
 	private var sprite:FlxSprite;
 	private var bkgrnd:FlxSprite;
 
-	private var nextState:FlxState;
-
 	private var cstyLogoPixels:Array<FlxPoint>;
-	private var timerLength:Float = 0.1;
-	private var timer:Float = 0.1;
+	private var timerLength:Float = 0.05;
+	private var timer:Float = 0.05;
 	private var updatingPixels:Array<UpdPix>;
 
 	private var logoFinished:Bool = false;
 
-	private var isSkipping:Bool = false;
-
-	public function new(nextState:FlxState, skip:Bool)
+	public function new()
 	{
 		super();
-
-		this.nextState = nextState;
-		this.isSkipping = skip;
 	}
 
 	override public function create():Void
 	{
 		super.create();
-		if (isSkipping)
-		{
-			onFade();
-			return;
-		}
 		FlxG.mouse.visible = false;
 
 		bkgrnd = new FlxSprite();
@@ -123,6 +112,6 @@ class FlxCstyLogo extends FlxState
 
 	private function onFade()
 	{
-		FlxG.switchState(nextState);
+		FlxG.switchState(MainMenuState.new);
 	}
 }
