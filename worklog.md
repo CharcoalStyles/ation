@@ -1,3 +1,11 @@
+# 2026-02-10 00:07:55
+
+Just a quick one with no code updates. Also, what am I doing up this late?
+
+There is no drag and drop library for HaxeFlixel, so I am going to have to roll my own. Much like the other stuff in `csHxUtils`, I'll make it in the game first and then move it over to the utils repo once it's in a good place. 
+
+It might be time to modularise that library, so other devs can just pull in the bits they need.
+
 # 2026-02-09 17:40:57
 
 A new side project. Well, a new old side project.
