@@ -10,7 +10,7 @@ import utils.GlobalState;
 
 class MainMenuState extends FlxState
 {
-	var gameName:String = "BitShift: Ation";
+	var gameName:String = "Ation";
 	var globalState:GlobalState;
 
 	var showSplash:Bool = true;

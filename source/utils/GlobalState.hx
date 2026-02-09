@@ -1,6 +1,8 @@
 package utils;
 
+import entities.Projectile;
 import flixel.FlxBasic;
+import flixel.group.FlxGroup.FlxTypedGroup;
 
 class GlobalState extends FlxBasic
 {
@@ -32,8 +34,16 @@ class GlobalState extends FlxBasic
     return _settings;
   }
 
+	public var projectiles:FlxTypedGroup<Projectile>;
+
 	public function new()
 	{
 		super();
+		projectiles = new FlxTypedGroup(100);
+
+		for (i in 0...100)
+		{
+			projectiles.add(new Projectile());
+		}
 	}
 }

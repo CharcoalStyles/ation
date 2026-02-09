@@ -1,12 +1,14 @@
 package entities;
 
+import entities.Weapon;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxPoint;
 import utils.GlobalState;
 
-class Player extends FlxTypedGroup<FlxBasic>
+class Player extends FlxTypedGroup<FlxBasic> implements Weapon.IWeaponUser
 {
 	var globalState:GlobalState;
 
@@ -18,6 +20,12 @@ class Player extends FlxTypedGroup<FlxBasic>
 
 	var lastStickRightX:Float = 0;
 	var lastStickRightY:Float = 0;
+
+	var weapon:Weapon;
+
+	public var position:FlxPoint = new FlxPoint();
+	public var target:FlxPoint = new FlxPoint();
+	public var activated:Bool = false;
 
 	public function new(X:Float, Y:Float)
 	{
@@ -37,12 +45,95 @@ class Player extends FlxTypedGroup<FlxBasic>
 		targetSprite.makeGraphic(16, 16, 0xffff0000); // Create a red square as a placeholder target sprite
 		// targetSprite.alpha = 0;
 		add(targetSprite);
+		weapon = new Weapon({
+			shots: 1,
+			speed: 300,
+			spread: 0.1,
+			refresh: 0.5
+		}, this);
 	}
 
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
+		updateMovement();
+
+		updateAim();
+
+		updateShooting();
+
+		weapon.update(elapsed);
+	}
+
+	function updateShooting()
+	{
+		if (globalState.usingController)
+		{
+			activated = FlxG.gamepads.firstActive.analog.value.RIGHT_TRIGGER >= 0.2;
+		}
+		else
+		{
+			activated = FlxG.mouse.pressed;
+		}
+	}
+
+	function updateAim():Void
+	{
+		// Update target position
+		if (globalState.usingController)
+		{
+			// Update target sprite position based on right analog stick
+			var rightX:Float = FlxG.gamepads.firstActive.analog.value.RIGHT_STICK_X;
+			var rightY:Float = FlxG.gamepads.firstActive.analog.value.RIGHT_STICK_Y;
+			var length:Float = Math.sqrt(rightX * rightX + rightY * rightY);
+
+			if (length > 0.4)
+			{
+				lastStickRightX = rightX;
+				lastStickRightY = rightY;
+			}
+			else
+			{
+				rightX = lastStickRightX;
+				rightY = lastStickRightY;
+				length = Math.sqrt(rightX * rightX + rightY * rightY);
+			}
+
+			// FlxG.log.add("Right Stick X: " + rightX + " Y: " + rightY + " Length: " + length);
+			if (length != 0)
+			{
+				rightX /= length;
+				rightY /= length;
+
+				targetSprite.x = playerSprite.x + playerSprite.width / 2 + rightX * 100 - targetSprite.width / 2;
+				targetSprite.y = playerSprite.y + playerSprite.height / 2 + rightY * 100 - targetSprite.height / 2;
+			}
+		}
+		else
+		{
+			// Update target sprite position to follow the mouse, be 100 pixels away from the player, in the direction of the mouse
+			var mouseX:Float = FlxG.mouse.viewX;
+			var mouseY:Float = FlxG.mouse.viewY;
+
+			var dirX:Float = mouseX - (playerSprite.x + playerSprite.width / 2);
+			var dirY:Float = mouseY - (playerSprite.y + playerSprite.height / 2);
+			var length:Float = Math.sqrt(dirX * dirX + dirY * dirY);
+			if (length != 0)
+			{
+				dirX /= length;
+				dirY /= length;
+
+				targetSprite.x = playerSprite.x + playerSprite.width / 2 + dirX * 100 - targetSprite.width / 2;
+				targetSprite.y = playerSprite.y + playerSprite.height / 2 + dirY * 100 - targetSprite.height / 2;
+			}
+		}
+
+		target.set(targetSprite.x + targetSprite.width / 2, targetSprite.y + targetSprite.height / 2);
+	}
+
+	function updateMovement():Void
+	{
 		var up:Bool = false;
 		var down:Bool = false;
 		var left:Bool = false;
@@ -126,53 +217,6 @@ class Player extends FlxTypedGroup<FlxBasic>
 			playerSprite.velocity.setPolarDegrees(speed * magnitude, newAngle);
 		}
 
-		// Update target position
-		if (globalState.usingController)
-		{
-			// Update target sprite position based on right analog stick
-			var rightX:Float = FlxG.gamepads.firstActive.analog.value.RIGHT_STICK_X;
-			var rightY:Float = FlxG.gamepads.firstActive.analog.value.RIGHT_STICK_Y;
-			var length:Float = Math.sqrt(rightX * rightX + rightY * rightY);
-
-			if (length > 0.4)
-			{
-        lastStickRightX = rightX;
-        lastStickRightY = rightY;
-      }
-      else
-			{
-				rightX = lastStickRightX;
-				rightY = lastStickRightY;
-        length = Math.sqrt(rightX * rightX + rightY * rightY);
-			}
-
-      // FlxG.log.add("Right Stick X: " + rightX + " Y: " + rightY + " Length: " + length);
-			if (length != 0)
-			{
-				rightX /= length;
-				rightY /= length;
-
-				targetSprite.x = playerSprite.x + playerSprite.width / 2 + rightX * 100 - targetSprite.width / 2;
-				targetSprite.y = playerSprite.y + playerSprite.height / 2 + rightY * 100 - targetSprite.height / 2;
-			}
-		}
-		else
-		{
-			// Update target sprite position to follow the mouse, be 100 pixels away from the player, in the direction of the mouse
-			var mouseX:Float = FlxG.mouse.viewX;
-			var mouseY:Float = FlxG.mouse.viewY;
-
-			var dirX:Float = mouseX - (playerSprite.x + playerSprite.width / 2);
-			var dirY:Float = mouseY - (playerSprite.y + playerSprite.height / 2);
-			var length:Float = Math.sqrt(dirX * dirX + dirY * dirY);
-			if (length != 0)
-			{
-				dirX /= length;
-				dirY /= length;
-
-				targetSprite.x = playerSprite.x + playerSprite.width / 2 + dirX * 100 - targetSprite.width / 2;
-				targetSprite.y = playerSprite.y + playerSprite.height / 2 + dirY * 100 - targetSprite.height / 2;
-			}
-		}
+		position.set(playerSprite.x + playerSprite.width / 2, playerSprite.y + playerSprite.height / 2);
 	}
 }
