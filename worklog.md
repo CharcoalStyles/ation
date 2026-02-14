@@ -1,3 +1,11 @@
+# 2026-02-14 22:46:08
+
+Back to work today after some mental health issues and some sore uscles from some squats training and some mini utimate frisbee on the same day! Getting back to this did help the mental health, though. And I was going to do some more, but i ran into my neighbour and we ended up having dinner together :D
+
+Anyway, what I did get done today was to bring in a sprite sheet to use as a test for the draggable spells, it's from the [Kenney 1-bit pack](https://kenney.nl/assets/1-bit-pack). I set up a test state to see how the sprites loaded.
+
+I've also done some thinking and a bit of code around how I can get the spell system to work codewise, but it's not in a state to share yet.
+
 # 2026-02-10 00:07:55
 
 Just a quick one with no code updates. Also, what am I doing up this late?

@@ -42,6 +42,10 @@ class MainMenuState extends FlxState
 		{
 			FlxG.switchState(PlayState.new);
 		});
+		mainPage.addItem("Test Sprite Sheet", () ->
+		{
+			FlxG.switchState(TestSpriteSheetState.new);
+		});
 		mainPage.addItem("Toggle Fullscreen", () -> FlxG.fullscreen = !FlxG.fullscreen);
 
 		// add(menu);
