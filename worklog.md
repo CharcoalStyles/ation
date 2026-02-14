@@ -6,6 +6,8 @@ Anyway, what I did get done today was to bring in a sprite sheet to use as a tes
 
 I've also done some thinking and a bit of code around how I can get the spell system to work codewise, but it's not in a state to share yet.
 
+Oh, and I think I will go with teh tower defence thing, but that will be forked into another repo once I have the spell system working, so I have a good base to work from for *other* games I might want to make in the future, or for other people to use if they want to make a game with a spell system ;)
+
 # 2026-02-10 00:07:55
 
 Just a quick one with no code updates. Also, what am I doing up this late?
