@@ -3701,7 +3701,7 @@ ManifestResources.init = function(config) {
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$nokiafc22_$ttf);
 	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$flixel_$fonts_$monsterrat_$ttf);
 	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy36:assets%2Fmusic%2Fmusic-goes-here.txty4:sizezy4:typey4:TEXTy2:idR1y7:preloadtgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R7R6tgoR0y26:assets%2Fimages%2Fcsty.pngR2i271R3y5:IMAGER5R8R6tgoR0y34:assets%2Fdata%2Fdata-goes-here.txtR2zR3R4R5R10R6tgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R11R6tgoR2i39706R3y5:MUSICR5y28:flixel%2Fsounds%2Fflixel.mp3y9:pathGroupaR13y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i8220R3R12R5y26:flixel%2Fsounds%2Fbeep.mp3R14aR16y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i6840R3y5:SOUNDR5R17R14aR16R17hgoR2i33629R3R18R5R15R14aR13R15hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R19R20y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i222R3R9R5R25R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i484R3R9R5R26R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy36:assets%2Fmusic%2Fmusic-goes-here.txty4:sizezy4:typey4:TEXTy2:idR1y7:preloadtgoR0y36:assets%2Fsounds%2Fsounds-go-here.txtR2zR3R4R5R7R6tgoR0y34:assets%2Fdata%2Fdata-goes-here.txtR2zR3R4R5R8R6tgoR0y36:assets%2Fimages%2Fcolored_packed.pngR2i23606R3y5:IMAGER5R9R6tgoR0y36:assets%2Fimages%2Fimages-go-here.txtR2zR3R4R5R11R6tgoR0y26:assets%2Fimages%2Fcsty.pngR2i271R3R10R5R12R6tgoR2i39706R3y5:MUSICR5y28:flixel%2Fsounds%2Fflixel.mp3y9:pathGroupaR14y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i8220R3R13R5y26:flixel%2Fsounds%2Fbeep.mp3R15aR17y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i33629R3y5:SOUNDR5R16R15aR14R16hgoR2i6840R3R19R5R18R15aR17R18hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R20R21y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i222R3R10R5R26R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i484R3R10R5R27R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
 	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
 	var library = lime_utils_AssetLibrary.fromManifest(manifest);
 	lime_utils_Assets.registerLibrary("default",library);
@@ -81993,7 +81993,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 772248;
+	this.version = 970464;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -132507,6 +132507,19 @@ states_MainMenuState.prototype = $extend(flixel_FlxState.prototype,{
 				}
 			});
 		});
+		mainPage.addItem("Test Sprite Sheet",function() {
+			var nextState = flixel_util_typeLimit_NextState.fromMaker(function() {
+				return new states_TestSpriteSheetState();
+			});
+			var stateOnCall = flixel_FlxG.game._state;
+			flixel_FlxG.game._state.startOutro(function() {
+				if(flixel_FlxG.game._state == stateOnCall) {
+					flixel_FlxG.game._nextState = nextState;
+				} else {
+					flixel_FlxG.log.advanced("`onOutroComplete` was called after the state was switched. This will be ignored",flixel_system_debug_log_LogStyle.WARNING,true,{ fileName : "flixel/FlxG.hx", lineNumber : 385, className : "flixel.FlxG", methodName : "switchState"});
+				}
+			});
+		});
 		mainPage.addItem("Toggle Fullscreen",function() {
 			flixel_FlxG.set_fullscreen(!flixel_FlxG.get_fullscreen());
 		});
@@ -132523,7 +132536,7 @@ states_MainMenuState.prototype = $extend(flixel_FlxState.prototype,{
 				this.remove(this.controllerCaptureText);
 				this.add(this.menu);
 				if(gamepad) {
-					flixel_FlxG.log.advanced("Controller input detected in menu",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/MenuState.hx", lineNumber : 69, className : "states.MainMenuState", methodName : "update"});
+					flixel_FlxG.log.advanced("Controller input detected in menu",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/MenuState.hx", lineNumber : 73, className : "states.MainMenuState", methodName : "update"});
 					this.globalState.usingController = true;
 				}
 			}
@@ -132562,6 +132575,57 @@ states_PlayState.prototype = $extend(flixel_FlxState.prototype,{
 		flixel_FlxState.prototype.update.call(this,elapsed);
 	}
 	,__class__: states_PlayState
+});
+var states_TestSpriteSheetState = function() {
+	this.numSpritesY = 20;
+	this.numSpritesX = 20;
+	this.spriteSpacingY = 4;
+	this.spriteSpacingX = 4;
+	this.spriteHeight = 16;
+	this.spriteWidth = 16;
+	this.spriteSheetPath = "assets/images/colored_packed.png";
+	flixel_FlxState.call(this);
+};
+$hxClasses["states.TestSpriteSheetState"] = states_TestSpriteSheetState;
+states_TestSpriteSheetState.__name__ = "states.TestSpriteSheetState";
+states_TestSpriteSheetState.__super__ = flixel_FlxState;
+states_TestSpriteSheetState.prototype = $extend(flixel_FlxState.prototype,{
+	create: function() {
+		flixel_FlxState.prototype.create.call(this);
+		this.sprites = [];
+		var _g = 0;
+		var _g1 = this.numSpritesX;
+		while(_g < _g1) {
+			var x = _g++;
+			var _g2 = 0;
+			var _g3 = this.numSpritesY;
+			while(_g2 < _g3) {
+				var y = _g2++;
+				var sprite = new flixel_FlxSprite().loadGraphic(this.spriteSheetPath,true,this.spriteWidth,this.spriteHeight);
+				sprite.set_x(x * (this.spriteWidth + this.spriteSpacingX));
+				sprite.set_y(y * (this.spriteHeight + this.spriteSpacingY));
+				this.sprites.push(sprite);
+				this.add(sprite);
+			}
+		}
+		this.newSprites();
+	}
+	,update: function(elapsed) {
+		flixel_FlxState.prototype.update.call(this,elapsed);
+		var _this = flixel_FlxG.keys.justPressed;
+		if(_this.keyManager.checkStatusUnsafe(32,_this.status)) {
+			this.newSprites();
+		}
+	}
+	,newSprites: function() {
+		var _g = 0;
+		var _g1 = this.numSpritesX * this.numSpritesY;
+		while(_g < _g1) {
+			var i = _g++;
+			this.sprites[i].animation.set_frameIndex(flixel_FlxG.random.int(0,this.sprites[i].frames.frames.length));
+		}
+	}
+	,__class__: states_TestSpriteSheetState
 });
 var utils_GlobalState = function() {
 	var s = "W";
