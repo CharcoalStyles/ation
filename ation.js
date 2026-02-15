@@ -81993,7 +81993,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 970464;
+	this.version = 314440;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -132577,10 +132577,8 @@ states_PlayState.prototype = $extend(flixel_FlxState.prototype,{
 	,__class__: states_PlayState
 });
 var states_TestSpriteSheetState = function() {
-	this.numSpritesY = 20;
-	this.numSpritesX = 20;
-	this.spriteSpacingY = 4;
-	this.spriteSpacingX = 4;
+	this.spriteSpacingY = 16;
+	this.spriteSpacingX = 24;
 	this.spriteHeight = 16;
 	this.spriteWidth = 16;
 	this.spriteSheetPath = "assets/images/colored_packed.png";
@@ -132592,37 +132590,39 @@ states_TestSpriteSheetState.__super__ = flixel_FlxState;
 states_TestSpriteSheetState.prototype = $extend(flixel_FlxState.prototype,{
 	create: function() {
 		flixel_FlxState.prototype.create.call(this);
+		var sprite = new flixel_FlxSprite().loadGraphic(this.spriteSheetPath,true,this.spriteWidth,this.spriteHeight);
+		var totalFrames = sprite.frames.frames.length;
+		var text = new flixel_text_FlxText(0,0,flixel_FlxG.width,"Sprite Sheet Test - " + totalFrames + " frames");
+		this.add(text);
+		var textHeight = text.get_height();
 		this.sprites = [];
+		var spritesStartY = textHeight + this.spriteSpacingY;
+		var numSpritesX = flixel_FlxG.width / (this.spriteWidth + this.spriteSpacingX) | 0;
+		var numSpritesY = flixel_FlxG.height / (this.spriteHeight + this.spriteSpacingY + textHeight) | 0;
+		this.labels = [];
+		var spritesAdded = 0;
 		var _g = 0;
-		var _g1 = this.numSpritesX;
+		var _g1 = numSpritesY;
 		while(_g < _g1) {
-			var x = _g++;
+			var y = _g++;
 			var _g2 = 0;
-			var _g3 = this.numSpritesY;
+			var _g3 = numSpritesX;
 			while(_g2 < _g3) {
-				var y = _g2++;
+				var x = _g2++;
 				var sprite = new flixel_FlxSprite().loadGraphic(this.spriteSheetPath,true,this.spriteWidth,this.spriteHeight);
 				sprite.set_x(x * (this.spriteWidth + this.spriteSpacingX));
-				sprite.set_y(y * (this.spriteHeight + this.spriteSpacingY));
+				sprite.set_y(spritesStartY + y * (this.spriteHeight + this.spriteSpacingY));
+				sprite.animation.set_frameIndex(y * numSpritesX + x);
 				this.sprites.push(sprite);
 				this.add(sprite);
+				++spritesAdded;
+				var label = new flixel_text_FlxText(sprite.x,sprite.y + this.spriteHeight,-1,Std.string(y * numSpritesX + x));
+				this.labels.push(label);
+				this.add(label);
+				if(spritesAdded >= totalFrames) {
+					return;
+				}
 			}
-		}
-		this.newSprites();
-	}
-	,update: function(elapsed) {
-		flixel_FlxState.prototype.update.call(this,elapsed);
-		var _this = flixel_FlxG.keys.justPressed;
-		if(_this.keyManager.checkStatusUnsafe(32,_this.status)) {
-			this.newSprites();
-		}
-	}
-	,newSprites: function() {
-		var _g = 0;
-		var _g1 = this.numSpritesX * this.numSpritesY;
-		while(_g < _g1) {
-			var i = _g++;
-			this.sprites[i].animation.set_frameIndex(flixel_FlxG.random.int(0,this.sprites[i].frames.frames.length));
 		}
 	}
 	,__class__: states_TestSpriteSheetState
