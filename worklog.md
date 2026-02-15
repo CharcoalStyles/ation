@@ -1,3 +1,9 @@
+# 2026-02-15 21:49:01
+
+Updated the spritesheet viewer to show the frame index under each sprite, and to have a title at the top with the total number of frames. I also added some more spacing between the sprites, as it was a bit cramped before.
+
+now I can pick out the frames I want to use for the spells and get their indexes, which will be useful for when I start working on the spell system (hopefully tomorrow).
+
 # 2026-02-14 22:46:08
 
 Back to work today after some mental health issues and some sore uscles from some squats training and some mini utimate frisbee on the same day! Getting back to this did help the mental health, though. And I was going to do some more, but i ran into my neighbour and we ended up having dinner together :D

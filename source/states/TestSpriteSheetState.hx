@@ -3,64 +3,67 @@ package states;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
 
 class TestSpriteSheetState extends FlxState
 {
 	var sprites:Array<FlxSprite>;
+	var labels:Array<FlxText>;
 
 	var spriteSheetPath:String = "assets/images/colored_packed.png";
 
 	var spriteWidth:Int = 16;
 	var spriteHeight:Int = 16;
 
-	var spriteSpacingX:Int = 4;
-	var spriteSpacingY:Int = 4;
-
-	var numSpritesX:Int = 20;
-	var numSpritesY:Int = 20;
+	var spriteSpacingX:Int = 24;
+	var spriteSpacingY:Int = 16;
 
 	override public function create():Void
 	{
 		super.create();
 
+		var sprite = new FlxSprite().loadGraphic(spriteSheetPath, true, spriteWidth, spriteHeight);
+		var totalFrames = sprite.frames.numFrames;
+
+		var text = new FlxText(0, 0, FlxG.width, "Sprite Sheet Test - " + totalFrames + " frames");
+		add(text);
+
+		var textHeight = text.height;
+
     sprites = new Array();
 
-		// Load from XML atlas (recommended for named frames)
-		// var frames = FlxAtlasFrames.fromSparrow("assets/images/spritesheet.xml");
+		var spritesStartY = textHeight + spriteSpacingY;
 
-		// Or load from uniform grid (if no XML)
-		// sprite = new FlxSprite().loadGraphic("assets/images/colored.png", false, 16,16,);
+		var numSpritesX = Std.int(FlxG.width / (spriteWidth + spriteSpacingX));
+		var numSpritesY = Std.int(FlxG.height / (spriteHeight + spriteSpacingY + textHeight));
 
-		for (x in 0...numSpritesX)
+		labels = new Array();
+
+		var spritesAdded = 0;
+
+		for (y in 0...numSpritesY)
 		{
-			for (y in 0...numSpritesY)
+			for (x in 0...numSpritesX)
 			{
 				var sprite = new FlxSprite().loadGraphic(spriteSheetPath, true, spriteWidth, spriteHeight);
 				sprite.x = x * (spriteWidth + spriteSpacingX);
-				sprite.y = y * (spriteHeight + spriteSpacingY);
+				sprite.y = spritesStartY + y * (spriteHeight + spriteSpacingY);
+				sprite.animation.frameIndex = y * numSpritesX + x;
         sprites.push(sprite);
 				add(sprite);
+				spritesAdded++;
+
+
+				var label = new FlxText(sprite.x, sprite.y + spriteHeight, -1, Std.string(y * numSpritesX + x));
+				labels.push(label);
+				add(label);
+
+				if (spritesAdded >= totalFrames)
+				{
+					return;
+				}
 			}
-		}
-
-		newSprites();
-	}
-
-  override public function update(elapsed:Float):Void {
-    super.update(elapsed);
-
-    if (FlxG.keys.justPressed.SPACE)
-    {
-      newSprites();
-    }
-  }
-
-	function newSprites():Void
-	{
-		for (i in 0...numSpritesX * numSpritesY)
-		{
-			sprites[i].animation.frameIndex = FlxG.random.int(0, sprites[i].frames.numFrames);
 		}
 	}
 }
