@@ -46,10 +46,11 @@ class Player extends FlxTypedGroup<FlxBasic> implements Weapon.IWeaponUser
 		// targetSprite.alpha = 0;
 		add(targetSprite);
 		weapon = new Weapon({
-			shots: 1,
-			speed: 300,
-			spread: 0.1,
-			refresh: 0.5
+			shots: 5,
+			speed: 800,
+			spread: 0.18,
+			delay: 0.1,
+			refresh: 0.23
 		}, this);
 	}
 

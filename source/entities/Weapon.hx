@@ -16,6 +16,7 @@ typedef WeaponStats = {
   var shots:Int;
   var speed:Float;
   var spread:Float;
+  var delay:Float;
   var refresh:Float;
 }
 
@@ -24,6 +25,7 @@ class Weapon extends FlxBasic{
   var timer:Float;
   var globalState:GlobalState;
   var user: IWeaponUser;
+  var parts:Array<entities.parts.Part>;
 
   public function new(stats:WeaponStats, user: IWeaponUser) {
     super();
@@ -33,6 +35,7 @@ class Weapon extends FlxBasic{
     globalState = GlobalState.instance;
     this.user = user;
     timer = 0;
+    parts = [];
   }
 
   override function update(elapsed:Float) {
@@ -51,6 +54,5 @@ class Weapon extends FlxBasic{
 
       timer = initStats.refresh;
     }
-    // FlxG.log.add("timer = " + timer + " activated = " + user.activated);
   }
 }
