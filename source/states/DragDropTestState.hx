@@ -5,7 +5,6 @@ import entities.test.DraggableSprite;
 import entities.test.DropTarget;
 import flixel.FlxG;
 import flixel.FlxState;
-import flixel.math.FlxPoint;
 import flixel.text.FlxText;
 
 class DragDropTestState extends FlxState
