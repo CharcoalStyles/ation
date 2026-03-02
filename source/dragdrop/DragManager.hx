@@ -7,7 +7,6 @@ import flixel.math.FlxPoint;
 
 class DragManager extends FlxBasic
 {
-	public static var instance:DragManager;
 
 	public var draggables:Array<IDraggable>;
 	public var targets:Array<IDropTarget>;
@@ -21,7 +20,6 @@ class DragManager extends FlxBasic
 	public function new()
 	{
 		super();
-		instance = this;
 		draggables = [];
 		targets = [];
 		events = new DragEvents();
