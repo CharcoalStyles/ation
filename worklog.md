@@ -1,3 +1,11 @@
+# 2026-03-02 13:59:28
+
+Another big break of no work. But I'm back! Still a bunch of mental health issues (and no job issues), but whatever ¯\\\_(ツ)_/¯
+
+Thanks to an LLM and some manual coding, I have a drag + drop system! TBH, it's quite good and it 100% would have taken me a while to make by myself. Now I have no reason (that's not been mentioned in the first paragraph) to not go ahead and make the spell system.
+
+So, that'll be next up. I might even get time on it a bit later today!
+
 # 2026-02-15 21:49:01
 
 Updated the spritesheet viewer to show the frame index under each sprite, and to have a title at the top with the total number of frames. I also added some more spacing between the sprites, as it was a bit cramped before.
