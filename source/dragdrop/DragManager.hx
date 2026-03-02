@@ -9,14 +9,14 @@ class DragManager extends FlxBasic
 {
 	public static var instance:DragManager;
 
-	public var draggables:Array<Draggable>;
-	public var targets:Array<DropTarget>;
+	public var draggables:Array<IDraggable>;
+	public var targets:Array<IDropTarget>;
 	public var events:DragEvents;
 
-	private var activeDrag:Draggable = null;
+	private var activeDrag:IDraggable = null;
 	private var activePointerId:Int = -1;
 	private var dragOffset:FlxPoint = new FlxPoint();
-	private var hoveredTarget:Null<DropTarget> = null;
+	private var hoveredTarget:Null<IDropTarget> = null;
 
 	public function new()
 	{
@@ -73,7 +73,7 @@ class DragManager extends FlxBasic
 		}
 	}
 
-	function startDrag(draggable:Draggable, pointerId:Int, mousePos:FlxPoint)
+	function startDrag(draggable:IDraggable, pointerId:Int, mousePos:FlxPoint)
 	{
 		activeDrag = draggable;
 		activePointerId = pointerId;
@@ -116,7 +116,7 @@ class DragManager extends FlxBasic
 
 	function checkHoverTarget()
 	{
-		var newHovered:Null<DropTarget> = null;
+		var newHovered:Null<IDropTarget> = null;
 
 		if (Std.isOfType(activeDrag, FlxSprite))
 		{
@@ -168,24 +168,24 @@ class DragManager extends FlxBasic
 		hoveredTarget = null;
 	}
 
-	public function register(draggable:Draggable)
+	public function register(draggable:IDraggable)
 	{
 		if (!draggables.contains(draggable))
 			draggables.push(draggable);
 	}
 
-	public function unregister(draggable:Draggable)
+	public function unregister(draggable:IDraggable)
 	{
 		draggables.remove(draggable);
 	}
 
-	public function addTarget(target:DropTarget)
+	public function addTarget(target:IDropTarget)
 	{
 		if (!targets.contains(target))
 			targets.push(target);
 	}
 
-	public function removeTarget(target:DropTarget)
+	public function removeTarget(target:IDropTarget)
 	{
 		targets.remove(target);
 	}

@@ -2,7 +2,7 @@ package dragdrop;
 
 import flixel.math.FlxPoint;
 
-interface Draggable
+interface IDraggable
 {
 	var originalPosition(get, set):FlxPoint;
 	var isDragging(get, never):Bool;
@@ -10,5 +10,5 @@ interface Draggable
 
 	function startDrag(pointerId:Int):Void;
 	function updateDrag(pointerId:Int, x:Float, y:Float):Void;
-	function endDrag(pointerId:Int, droppedOn:Null<DropTarget>):Void;
+	function endDrag(pointerId:Int, droppedOn:Null<IDropTarget>):Void;
 }

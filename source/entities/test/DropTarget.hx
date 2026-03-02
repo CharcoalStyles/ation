@@ -1,9 +1,11 @@
-package dragdrop;
+package entities.test;
 
+import dragdrop.IDraggable;
+import dragdrop.IDropTarget;
 import flixel.FlxSprite;
 import flixel.math.FlxRect;
 
-class DropTarget extends FlxSprite
+class DropTarget extends FlxSprite implements IDropTarget
 {
 	public var acceptsTypes:Array<String>;
 	public var hoverData:Dynamic;
@@ -14,7 +16,7 @@ class DropTarget extends FlxSprite
 		acceptsTypes = types != null ? types : [];
 	}
 
-	public function accepts(item:Draggable):Bool
+	public function accepts(item:IDraggable):Bool
 	{
 		if (acceptsTypes.length == 0)
 			return true;

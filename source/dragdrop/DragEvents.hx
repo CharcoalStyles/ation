@@ -1,10 +1,10 @@
 package dragdrop;
 
-typedef DragStartCallback = (Draggable, Int) -> Void;
-typedef DragMoveCallback = (Draggable, Int, Float, Float) -> Void;
-typedef DragEndCallback = (Draggable, Int, Null<DropTarget>) -> Void;
-typedef DropCallback = (Draggable, DropTarget) -> Void;
-typedef HoverCallback = (Draggable, DropTarget) -> Void;
+typedef DragStartCallback = (IDraggable, Int) -> Void;
+typedef DragMoveCallback = (IDraggable, Int, Float, Float) -> Void;
+typedef DragEndCallback = (IDraggable, Int, Null<IDropTarget>) -> Void;
+typedef DropCallback = (IDraggable, IDropTarget) -> Void;
+typedef HoverCallback = (IDraggable, IDropTarget) -> Void;
 
 class DragEvents
 {

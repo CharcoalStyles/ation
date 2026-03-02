@@ -1,8 +1,8 @@
 package states;
 
 import dragdrop.DragManager;
-import dragdrop.DropTarget;
 import entities.test.DraggableSprite;
+import entities.test.DropTarget;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.math.FlxPoint;
@@ -49,24 +49,8 @@ class DragDropTestState extends FlxState
 			FlxG.log.add("Drag started!");
 		};
 
-		dragManager.events.onHover = function(draggable, target)
-		{
-			target.alpha = 0.7;
-		};
-
-		dragManager.events.onHoverOut = function(draggable, target)
-		{
-			target.alpha = 1.0;
-		};
-
 		dragManager.events.onDrop = function(draggable, target)
 		{
-			// centre the draggable on the target
-			var targetPos = new FlxPoint(target.width, target.height);
-			targetPos.scale(0.5);
-
-			draggable.originalPosition.set(target.x + targetPos.x, target.y + targetPos.y);
-			target.alpha = 1.0;
 			FlxG.log.add("Dropped on target!");
 		};
 

@@ -1,11 +1,11 @@
 package entities.test;
 
-import dragdrop.Draggable;
-import dragdrop.DropTarget;
+import dragdrop.IDraggable;
+import dragdrop.IDropTarget;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 
-class DraggableSprite extends FlxSprite implements Draggable
+class DraggableSprite extends FlxSprite implements IDraggable
 {
 	private var _originalPosition:FlxPoint = new FlxPoint();
 	public var originalPosition(get, set):FlxPoint;
@@ -40,7 +40,7 @@ class DraggableSprite extends FlxSprite implements Draggable
 		// Override in subclass for custom behavior during drag
 	}
 
-	public function endDrag(pointerId:Int, droppedOn:Null<DropTarget>):Void
+	public function endDrag(pointerId:Int, droppedOn:Null<IDropTarget>):Void
 	{
 		_isDragging = false;
 		
@@ -50,9 +50,12 @@ class DraggableSprite extends FlxSprite implements Draggable
 			x = _originalPosition.x;
 			y = _originalPosition.y;
 		} else {
-      
-      x = droppedOn.x + (droppedOn.width - width) / 2;
-      y = droppedOn.y + (droppedOn.height - height) / 2;
+			if (Std.isOfType(droppedOn, DropTarget))
+			{
+				var target = cast(droppedOn, DropTarget);
+				x = target.x + (target.width - width) / 2;
+				y = target.y + (target.height - height) / 2;
+			}
     }
 	}
 }
