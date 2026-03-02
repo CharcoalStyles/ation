@@ -2567,7 +2567,7 @@ openfl_display_DisplayObject.prototype = $extend(openfl_events_EventDispatcher.p
 	,set_scaleX: function(value) {
 		if(value != this.__scaleX) {
 			this.__scaleX = value;
-			if(this.__transform.b == 0) {
+			if(this.__rotation == 0) {
 				if(value != this.__transform.a) {
 					this.__setTransformDirty();
 				}
@@ -2590,7 +2590,7 @@ openfl_display_DisplayObject.prototype = $extend(openfl_events_EventDispatcher.p
 	,set_scaleY: function(value) {
 		if(value != this.__scaleY) {
 			this.__scaleY = value;
-			if(this.__transform.c == 0) {
+			if(this.__rotation == 0) {
 				if(value != this.__transform.d) {
 					this.__setTransformDirty();
 				}
@@ -3097,7 +3097,7 @@ openfl_display_DisplayObjectContainer.prototype = $extend(openfl_display_Interac
 		while(_g < _g1.length) {
 			var child = _g1[_g];
 			++_g;
-			if(child.__scaleX == 0 || child.__scaleY == 0) {
+			if(child.__scaleX == 0 && child.__scaleY == 0) {
 				continue;
 			}
 			var local = child.__transform;
@@ -6262,6 +6262,240 @@ csHxUtils_entities_SplitText.prototype = $extend(flixel_group_FlxTypedGroup.prot
 	,__class__: csHxUtils_entities_SplitText
 	,__properties__: $extend(flixel_group_FlxTypedGroup.prototype.__properties__,{set_borderStyle:"set_borderStyle",set_borderQuality:"set_borderQuality",set_borderSize:"set_borderSize",set_borderColor:"set_borderColor",set_alpha:"set_alpha",set_color:"set_color",get_rect:"get_rect",set_y:"set_y",set_x:"set_x"})
 });
+var dragdrop_DragEvents = function() {
+};
+$hxClasses["dragdrop.DragEvents"] = dragdrop_DragEvents;
+dragdrop_DragEvents.__name__ = "dragdrop.DragEvents";
+dragdrop_DragEvents.prototype = {
+	__class__: dragdrop_DragEvents
+};
+var dragdrop_DragManager = function() {
+	this.hoveredTarget = null;
+	var x = 0;
+	var y = 0;
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	var x1 = x;
+	var y1 = y;
+	if(y1 == null) {
+		y1 = 0;
+	}
+	if(x1 == null) {
+		x1 = 0;
+	}
+	var point = flixel_math_FlxBasePoint.pool.get().set(x1,y1);
+	point._inPool = false;
+	this.dragOffset = point;
+	this.activePointerId = -1;
+	this.activeDrag = null;
+	flixel_FlxBasic.call(this);
+	dragdrop_DragManager.instance = this;
+	this.draggables = [];
+	this.targets = [];
+	this.events = new dragdrop_DragEvents();
+};
+$hxClasses["dragdrop.DragManager"] = dragdrop_DragManager;
+dragdrop_DragManager.__name__ = "dragdrop.DragManager";
+dragdrop_DragManager.__super__ = flixel_FlxBasic;
+dragdrop_DragManager.prototype = $extend(flixel_FlxBasic.prototype,{
+	update: function(elapsed) {
+		flixel_FlxBasic.prototype.update.call(this,elapsed);
+		if(this.activeDrag == null) {
+			this.checkForDragStart();
+		} else if(this.activePointerId >= 0 && flixel_FlxG.mouse._leftButton.current == -1) {
+			this.endDrag();
+		} else {
+			this.updateDrag();
+		}
+	}
+	,checkForDragStart: function() {
+		if(flixel_FlxG.mouse._leftButton.current == 2) {
+			var mousePos = flixel_FlxG.mouse.getPosition();
+			var _g = 0;
+			var _g1 = this.draggables;
+			while(_g < _g1.length) {
+				var draggable = _g1[_g];
+				++_g;
+				if(((draggable) instanceof flixel_FlxSprite)) {
+					var sprite = js_Boot.__cast(draggable , flixel_FlxSprite);
+					if(sprite.isOnScreen() && sprite.visible) {
+						var bounds = new flixel_math_FlxRect(sprite.x,sprite.y,sprite.get_width(),sprite.get_height());
+						var xPos = mousePos.x;
+						var yPos = mousePos.y;
+						var result = xPos >= bounds.x && xPos <= bounds.x + bounds.width && yPos >= bounds.y && yPos <= bounds.y + bounds.height;
+						var _this = mousePos;
+						if(_this._weak) {
+							_this.put();
+						}
+						if(result) {
+							this.startDrag(draggable,0,mousePos);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	,startDrag: function(draggable,pointerId,mousePos) {
+		this.activeDrag = draggable;
+		this.activePointerId = pointerId;
+		if(((draggable) instanceof flixel_FlxSprite)) {
+			var sprite = js_Boot.__cast(draggable , flixel_FlxSprite);
+			var x = mousePos.x - sprite.x;
+			var y = mousePos.y - sprite.y;
+			if(y == null) {
+				y = 0;
+			}
+			if(x == null) {
+				x = 0;
+			}
+			this.dragOffset.set(x,y);
+		}
+		draggable.startDrag(pointerId);
+		if(this.events.onDragStart != null) {
+			this.events.onDragStart(draggable,pointerId);
+		}
+	}
+	,updateDrag: function() {
+		if(this.activeDrag == null) {
+			return;
+		}
+		var mousePos = flixel_FlxG.mouse.getPosition();
+		var x = mousePos.x - this.dragOffset.x;
+		var y = mousePos.y - this.dragOffset.y;
+		if(((this.activeDrag) instanceof flixel_FlxSprite)) {
+			var sprite = js_Boot.__cast(this.activeDrag , flixel_FlxSprite);
+			sprite.set_x(x);
+			sprite.set_y(y);
+		}
+		this.activeDrag.updateDrag(this.activePointerId,x,y);
+		if(this.events.onDragMove != null) {
+			this.events.onDragMove(this.activeDrag,this.activePointerId,x,y);
+		}
+		this.checkHoverTarget();
+	}
+	,checkHoverTarget: function() {
+		var newHovered = null;
+		if(((this.activeDrag) instanceof flixel_FlxSprite)) {
+			var sprite = js_Boot.__cast(this.activeDrag , flixel_FlxSprite);
+			var x = sprite.x + sprite.get_width() / 2;
+			var y = sprite.y + sprite.get_height() / 2;
+			if(y == null) {
+				y = 0;
+			}
+			if(x == null) {
+				x = 0;
+			}
+			var x1 = x;
+			var y1 = y;
+			if(y1 == null) {
+				y1 = 0;
+			}
+			if(x1 == null) {
+				x1 = 0;
+			}
+			var x = x1;
+			var y = y1;
+			if(y == null) {
+				y = 0;
+			}
+			if(x == null) {
+				x = 0;
+			}
+			var point = flixel_math_FlxBasePoint.pool.get().set(x,y);
+			point._inPool = false;
+			var center = point;
+			var _g = 0;
+			var _g1 = this.targets;
+			while(_g < _g1.length) {
+				var target = _g1[_g];
+				++_g;
+				var tmp;
+				if(target.accepts(this.activeDrag)) {
+					var _this = target.getBounds();
+					var xPos = center.x;
+					var yPos = center.y;
+					var result = xPos >= _this.x && xPos <= _this.x + _this.width && yPos >= _this.y && yPos <= _this.y + _this.height;
+					var _this1 = center;
+					if(_this1._weak) {
+						_this1.put();
+					}
+					tmp = result;
+				} else {
+					tmp = false;
+				}
+				if(tmp) {
+					newHovered = target;
+					break;
+				}
+			}
+		}
+		if(newHovered != this.hoveredTarget) {
+			if(this.hoveredTarget != null && this.events.onHoverOut != null) {
+				this.events.onHoverOut(this.activeDrag,this.hoveredTarget);
+			}
+			this.hoveredTarget = newHovered;
+			if(this.hoveredTarget != null && this.events.onHover != null) {
+				this.events.onHover(this.activeDrag,this.hoveredTarget);
+			}
+		}
+	}
+	,endDrag: function() {
+		if(this.activeDrag == null) {
+			return;
+		}
+		var droppedOn = this.hoveredTarget;
+		this.activeDrag.endDrag(this.activePointerId,droppedOn);
+		if(this.events.onDragEnd != null) {
+			this.events.onDragEnd(this.activeDrag,this.activePointerId,droppedOn);
+		}
+		if(droppedOn != null && this.events.onDrop != null) {
+			this.events.onDrop(this.activeDrag,droppedOn);
+		}
+		if(this.hoveredTarget != null && this.events.onHoverOut != null) {
+			this.events.onHoverOut(this.activeDrag,this.hoveredTarget);
+		}
+		this.activeDrag = null;
+		this.activePointerId = -1;
+		this.hoveredTarget = null;
+	}
+	,register: function(draggable) {
+		if(this.draggables.indexOf(draggable) == -1) {
+			this.draggables.push(draggable);
+		}
+	}
+	,unregister: function(draggable) {
+		HxOverrides.remove(this.draggables,draggable);
+	}
+	,addTarget: function(target) {
+		if(this.targets.indexOf(target) == -1) {
+			this.targets.push(target);
+		}
+	}
+	,removeTarget: function(target) {
+		HxOverrides.remove(this.targets,target);
+	}
+	,__class__: dragdrop_DragManager
+});
+var dragdrop_IDraggable = function() { };
+$hxClasses["dragdrop.IDraggable"] = dragdrop_IDraggable;
+dragdrop_IDraggable.__name__ = "dragdrop.IDraggable";
+dragdrop_IDraggable.__isInterface__ = true;
+dragdrop_IDraggable.prototype = {
+	__class__: dragdrop_IDraggable
+	,__properties__: {set_dragData:"set_dragData",get_dragData:"get_dragData",get_isDragging:"get_isDragging",set_originalPosition:"set_originalPosition",get_originalPosition:"get_originalPosition"}
+};
+var dragdrop_IDropTarget = function() { };
+$hxClasses["dragdrop.IDropTarget"] = dragdrop_IDropTarget;
+dragdrop_IDropTarget.__name__ = "dragdrop.IDropTarget";
+dragdrop_IDropTarget.__isInterface__ = true;
+dragdrop_IDropTarget.prototype = {
+	__class__: dragdrop_IDropTarget
+};
 var entities_IWeaponUser = function() { };
 $hxClasses["entities.IWeaponUser"] = entities_IWeaponUser;
 entities_IWeaponUser.__name__ = "entities.IWeaponUser";
@@ -6330,7 +6564,7 @@ var entities_Player = function(X,Y) {
 	this.targetSprite = new flixel_FlxSprite();
 	this.targetSprite.makeGraphic(16,16,-65536);
 	this.add(this.targetSprite);
-	this.weapon = new entities_Weapon({ shots : 1, speed : 300, spread : 0.1, refresh : 0.5},this);
+	this.weapon = new entities_Weapon({ shots : 5, speed : 800, spread : 0.18, delay : 0.1, refresh : 0.23},this);
 };
 $hxClasses["entities.Player"] = entities_Player;
 entities_Player.__name__ = "entities.Player";
@@ -9469,6 +9703,7 @@ var entities_Weapon = function(stats,user) {
 	this.globalState = utils_GlobalState.instance;
 	this.user = user;
 	this.timer = 0;
+	this.parts = [];
 };
 $hxClasses["entities.Weapon"] = entities_Weapon;
 entities_Weapon.__name__ = "entities.Weapon";
@@ -9476,7 +9711,7 @@ entities_Weapon.__super__ = flixel_FlxBasic;
 entities_Weapon.prototype = $extend(flixel_FlxBasic.prototype,{
 	update: function(elapsed) {
 		flixel_FlxBasic.prototype.update.call(this,elapsed);
-		flixel_FlxG.log.advanced("Weapon update: timer = " + this.timer + ", user activated = " + Std.string(this.user.activated),flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/entities/Weapon.hx", lineNumber : 40, className : "entities.Weapon", methodName : "update"});
+		flixel_FlxG.log.advanced("Weapon update: timer = " + this.timer + ", user activated = " + Std.string(this.user.activated),flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/entities/Weapon.hx", lineNumber : 43, className : "entities.Weapon", methodName : "update"});
 		if(this.timer > 0) {
 			this.timer -= elapsed;
 		} else if(this.user.activated) {
@@ -9516,6 +9751,134 @@ entities_Weapon.prototype = $extend(flixel_FlxBasic.prototype,{
 		}
 	}
 	,__class__: entities_Weapon
+});
+var entities_parts_Part = function(name,description,stats) {
+	this.name = name;
+	this.description = description;
+	this.stats = stats;
+	this.iconSprite = new flixel_FlxSprite();
+};
+$hxClasses["entities.parts.Part"] = entities_parts_Part;
+entities_parts_Part.__name__ = "entities.parts.Part";
+entities_parts_Part.genStats = function() {
+	var tmp = { add : flixel_FlxG.random.float(-30,30), mult : 1, exp : 1};
+	var tmp1 = { add : flixel_FlxG.random.float(-10,10), mult : 1, exp : 1};
+	var tmp2 = { add : flixel_FlxG.random.float(-0.1,0.1), mult : 1, exp : 1};
+	var tmp3 = flixel_FlxG.random.float(-0.15,0.15);
+	return { shots : { add : 0, mult : 1, exp : 1}, speed : tmp, spread : tmp1, delay : tmp2, refresh : { add : tmp3, mult : 1, exp : 1}};
+};
+entities_parts_Part.prototype = {
+	__class__: entities_parts_Part
+};
+var entities_test_DraggableSprite = function(X,Y,Graphic) {
+	this._isDragging = false;
+	var x = 0;
+	var y = 0;
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	var x1 = x;
+	var y1 = y;
+	if(y1 == null) {
+		y1 = 0;
+	}
+	if(x1 == null) {
+		x1 = 0;
+	}
+	var point = flixel_math_FlxBasePoint.pool.get().set(x1,y1);
+	point._inPool = false;
+	this._originalPosition = point;
+	flixel_FlxSprite.call(this,X,Y,Graphic);
+	var x = X;
+	var y = Y;
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	this._originalPosition.set(x,y);
+};
+$hxClasses["entities.test.DraggableSprite"] = entities_test_DraggableSprite;
+entities_test_DraggableSprite.__name__ = "entities.test.DraggableSprite";
+entities_test_DraggableSprite.__interfaces__ = [dragdrop_IDraggable];
+entities_test_DraggableSprite.__super__ = flixel_FlxSprite;
+entities_test_DraggableSprite.prototype = $extend(flixel_FlxSprite.prototype,{
+	get_originalPosition: function() {
+		return this._originalPosition;
+	}
+	,set_originalPosition: function(value) {
+		this._originalPosition = value;
+		return value;
+	}
+	,get_isDragging: function() {
+		return this._isDragging;
+	}
+	,get_dragData: function() {
+		return this._dragData;
+	}
+	,set_dragData: function(value) {
+		this._dragData = value;
+		return value;
+	}
+	,startDrag: function(pointerId) {
+		this._isDragging = true;
+		var x = this.x;
+		var y = this.y;
+		if(y == null) {
+			y = 0;
+		}
+		if(x == null) {
+			x = 0;
+		}
+		this._originalPosition.set(x,y);
+	}
+	,updateDrag: function(pointerId,x,y) {
+	}
+	,endDrag: function(pointerId,droppedOn) {
+		this._isDragging = false;
+		if(droppedOn == null) {
+			this.set_x(this._originalPosition.x);
+			this.set_y(this._originalPosition.y);
+		} else if(((droppedOn) instanceof entities_test_DropTarget)) {
+			var target = js_Boot.__cast(droppedOn , entities_test_DropTarget);
+			this.set_x(target.x + (target.get_width() - this.get_width()) / 2);
+			this.set_y(target.y + (target.get_height() - this.get_height()) / 2);
+		}
+	}
+	,__class__: entities_test_DraggableSprite
+	,__properties__: $extend(flixel_FlxSprite.prototype.__properties__,{set_dragData:"set_dragData",get_dragData:"get_dragData",get_isDragging:"get_isDragging",set_originalPosition:"set_originalPosition",get_originalPosition:"get_originalPosition"})
+});
+var entities_test_DropTarget = function(X,Y,graphic,types) {
+	if(Y == null) {
+		Y = 0;
+	}
+	if(X == null) {
+		X = 0;
+	}
+	flixel_FlxSprite.call(this,X,Y,graphic);
+	this.acceptsTypes = types != null ? types : [];
+};
+$hxClasses["entities.test.DropTarget"] = entities_test_DropTarget;
+entities_test_DropTarget.__name__ = "entities.test.DropTarget";
+entities_test_DropTarget.__interfaces__ = [dragdrop_IDropTarget];
+entities_test_DropTarget.__super__ = flixel_FlxSprite;
+entities_test_DropTarget.prototype = $extend(flixel_FlxSprite.prototype,{
+	accepts: function(item) {
+		if(this.acceptsTypes.length == 0) {
+			return true;
+		}
+		var c = js_Boot.getClass(item);
+		var itemType = c.__name__;
+		return this.acceptsTypes.indexOf(itemType) != -1;
+	}
+	,getBounds: function() {
+		return this.getHitbox();
+	}
+	,__class__: entities_test_DropTarget
 });
 var flixel_IFlxBasic = function() { };
 $hxClasses["flixel.IFlxBasic"] = flixel_IFlxBasic;
@@ -27060,9 +27423,9 @@ openfl_display_Shader.prototype = {
 			message += "\n" + shaderInfoLog;
 			message += "\n" + source;
 			if(compileStatus == 0) {
-				lime_utils_Log.error(message,{ fileName : "openfl/display/Shader.hx", lineNumber : 337, className : "openfl.display.Shader", methodName : "__createGLShader"});
+				lime_utils_Log.error(message,{ fileName : "openfl/display/Shader.hx", lineNumber : 336, className : "openfl.display.Shader", methodName : "__createGLShader"});
 			} else if(hasInfoLog) {
-				lime_utils_Log.debug(message,{ fileName : "openfl/display/Shader.hx", lineNumber : 338, className : "openfl.display.Shader", methodName : "__createGLShader"});
+				lime_utils_Log.debug(message,{ fileName : "openfl/display/Shader.hx", lineNumber : 337, className : "openfl.display.Shader", methodName : "__createGLShader"});
 			}
 		}
 		return shader;
@@ -27088,7 +27451,7 @@ openfl_display_Shader.prototype = {
 		if(gl.getProgramParameter(program,gl.LINK_STATUS) == 0) {
 			var message = "Unable to initialize the shader program";
 			message += "\n" + gl.getProgramInfoLog(program);
-			lime_utils_Log.error(message,{ fileName : "openfl/display/Shader.hx", lineNumber : 371, className : "openfl.display.Shader", methodName : "__createGLProgram"});
+			lime_utils_Log.error(message,{ fileName : "openfl/display/Shader.hx", lineNumber : 370, className : "openfl.display.Shader", methodName : "__createGLProgram"});
 		}
 		return program;
 	}
@@ -49530,7 +49893,7 @@ openfl_text_TextField.prototype = $extend(openfl_display_InteractiveObject.proto
 					index += 2;
 				} else {
 					++index;
-					lime_utils_Log.warn("You found a bug in OpenFL's text code! Please save a copy of your project and create an issue on GitHub so we can fix this.",{ fileName : "openfl/text/TextField.hx", lineNumber : 1638, className : "openfl.text.TextField", methodName : "setTextFormat"});
+					lime_utils_Log.warn("You found a bug in OpenFL's text code! Please save a copy of your project and create an issue on GitHub so we can fix this.",{ fileName : "openfl/text/TextField.hx", lineNumber : 1630, className : "openfl.text.TextField", methodName : "setTextFormat"});
 				}
 			}
 		}
@@ -49937,7 +50300,7 @@ openfl_text_TextField.prototype = $extend(openfl_display_InteractiveObject.proto
 			if(beginIndex == endIndex) {
 				if(range.start == range.end) {
 					if(range.start != 0) {
-						lime_utils_Log.warn("You found a bug in OpenFL's text code! Please save a copy of your project and create an issue on GitHub so we can fix this.",{ fileName : "openfl/text/TextField.hx", lineNumber : 2219, className : "openfl.text.TextField", methodName : "__replaceText"});
+						lime_utils_Log.warn("You found a bug in OpenFL's text code! Please save a copy of your project and create an issue on GitHub so we can fix this.",{ fileName : "openfl/text/TextField.hx", lineNumber : 2211, className : "openfl.text.TextField", methodName : "__replaceText"});
 					} else {
 						range.end += offset;
 					}
@@ -68100,6 +68463,7 @@ lime__$internal_backend_html5_HTML5Window.prototype = {
 				context.canvas2D = this.canvas.getContext("2d");
 				context.type = "canvas";
 				context.version = "";
+				context.attributes.hardware = false;
 			} else {
 				context.webgl = lime_graphics_WebGLRenderContext.fromWebGL2RenderContext(webgl);
 				if(isWebGL2) {
@@ -68112,6 +68476,7 @@ lime__$internal_backend_html5_HTML5Window.prototype = {
 				}
 				context.type = "webgl";
 				context.version = isWebGL2 ? "2" : "1";
+				context.attributes.hardware = true;
 			}
 		}
 		this.parent.context = context;
@@ -78132,7 +78497,12 @@ lime_media_AudioBuffer.loadFromFiles = function(paths) {
 	return promise.future;
 };
 lime_media_AudioBuffer.__getCodec = function(bytes) {
-	var signature = bytes.getString(0,4);
+	var signature = null;
+	try {
+		signature = bytes.getString(0,4);
+	} catch( _g ) {
+		haxe_NativeStackTrace.lastError = _g;
+	}
 	switch(signature) {
 	case "OggS":
 		return "audio/ogg";
@@ -78184,7 +78554,7 @@ lime_media_AudioBuffer.__getCodec = function(bytes) {
 		default:
 		}
 	}
-	lime_utils_Log.error("Unsupported sound format",{ fileName : "lime/media/AudioBuffer.hx", lineNumber : 440, className : "lime.media.AudioBuffer", methodName : "__getCodec"});
+	lime_utils_Log.error("Unsupported sound format",{ fileName : "lime/media/AudioBuffer.hx", lineNumber : 450, className : "lime.media.AudioBuffer", methodName : "__getCodec"});
 	return null;
 };
 lime_media_AudioBuffer.prototype = {
@@ -81993,7 +82363,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 314440;
+	this.version = 729827;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -83659,7 +84029,9 @@ lime_utils_BytePointerData.prototype = {
 };
 var lime_utils_Bytes = {};
 lime_utils_Bytes._new = function(length,bytesData) {
-	return new haxe_io_Bytes(bytesData);
+	var this1 = new haxe_io_Bytes(bytesData);
+	this1.length = length;
+	return this1;
 };
 lime_utils_Bytes.alloc = function(length) {
 	return new haxe_io_Bytes(new ArrayBuffer(length));
@@ -89208,8 +89580,8 @@ openfl_display_Graphics.prototype = {
 				}
 			}
 		}
-		var width = this.__bounds.width * scaleX;
-		var height = this.__bounds.height * scaleY;
+		var width = Math.abs(this.__bounds.width * scaleX);
+		var height = Math.abs(this.__bounds.height * scaleY);
 		if(width < 1 || height < 1) {
 			if(this.__width >= 1 || this.__height >= 1) {
 				this.set___dirty(true);
@@ -89226,6 +89598,8 @@ openfl_display_Graphics.prototype = {
 			height = openfl_display_Graphics.maxTextureHeight;
 			scaleY = openfl_display_Graphics.maxTextureHeight / this.__bounds.height;
 		}
+		var newWidth = Math.ceil(width + 1.0);
+		var newHeight = Math.ceil(height + 1.0);
 		var inverseA;
 		var inverseD;
 		if(this.__owner.__worldScale9Grid != null) {
@@ -89234,8 +89608,8 @@ openfl_display_Graphics.prototype = {
 			inverseA = 1 / pixelRatio;
 			inverseD = 1 / pixelRatio;
 		} else {
-			this.__renderTransform.a = width / this.__bounds.width;
-			this.__renderTransform.d = height / this.__bounds.height;
+			this.__renderTransform.a = newWidth / this.__bounds.width;
+			this.__renderTransform.d = newHeight / this.__bounds.height;
 			inverseA = 1 / this.__renderTransform.a;
 			inverseD = 1 / this.__renderTransform.d;
 		}
@@ -89261,8 +89635,6 @@ openfl_display_Graphics.prototype = {
 		var _this = this.__worldTransform;
 		var norm = _this.a * _this.d - _this.b * _this.c;
 		this.__renderTransform.ty = norm == 0 ? -_this.ty : 1.0 / norm * (_this.a * (ty - _this.ty) + _this.b * (_this.tx - tx));
-		var newWidth = Math.ceil(width + 1.0);
-		var newHeight = Math.ceil(height + 1.0);
 		if(newWidth != this.__width || newHeight != this.__height) {
 			this.set___dirty(true);
 		}
@@ -89866,6 +90238,14 @@ var openfl_display_Loader = function() {
 };
 $hxClasses["openfl.display.Loader"] = openfl_display_Loader;
 openfl_display_Loader.__name__ = "openfl.display.Loader";
+openfl_display_Loader.__registerDefaultLoaders = function() {
+	var loaders = [new openfl_display__$internal_BitmapDataLoader(),new openfl_display__$internal_ScriptLoader(),new openfl_display__$internal_AssetManifestLoader()];
+	if(openfl_display_Loader.__registeredLoaders == null) {
+		openfl_display_Loader.__registeredLoaders = loaders;
+	} else {
+		openfl_display_Loader.__registeredLoaders = loaders.concat(openfl_display_Loader.__registeredLoaders);
+	}
+};
 openfl_display_Loader.registerLoader = function(loader) {
 	if(loader == null) {
 		return;
@@ -89885,7 +90265,7 @@ openfl_display_Loader.prototype = $extend(openfl_display_DisplayObjectContainer.
 		throw new openfl_errors_Error("Error #2069: The Loader class does not implement this method.",2069);
 	}
 	,close: function() {
-		openfl_utils__$internal_Lib.notImplemented({ fileName : "openfl/display/Loader.hx", lineNumber : 240, className : "openfl.display.Loader", methodName : "close"});
+		openfl_utils__$internal_Lib.notImplemented({ fileName : "openfl/display/Loader.hx", lineNumber : 245, className : "openfl.display.Loader", methodName : "close"});
 	}
 	,load: function(request,context) {
 		this.unload();
@@ -93906,15 +94286,9 @@ openfl_display_Stage.prototype = $extend(openfl_display_DisplayObjectContainer.p
 				++i;
 			}
 		}
+		var newMouseOverTarget = null;
 		if(target != this.__mouseOverTarget) {
-			if(target != null) {
-				var event = null;
-				event = openfl_events_MouseEvent.__create("mouseOver",button,0,this.__mouseX,this.__mouseY,target.__globalToLocal(targetPoint,localPoint),target);
-				this.__dispatchStack(event,stack);
-				if(event.__updateAfterEventFlag) {
-					this.__renderAfterEvent();
-				}
-			}
+			newMouseOverTarget = target;
 			this.__mouseOverTarget = target;
 			this.__mouseOutStack = stack;
 		}
@@ -93933,6 +94307,14 @@ openfl_display_Stage.prototype = $extend(openfl_display_DisplayObjectContainer.p
 					}
 				}
 				this.__rollOutStack.push(item);
+			}
+		}
+		if(newMouseOverTarget != null) {
+			var event = null;
+			event = openfl_events_MouseEvent.__create("mouseOver",button,0,this.__mouseX,this.__mouseY,newMouseOverTarget.__globalToLocal(targetPoint,localPoint),newMouseOverTarget);
+			this.__dispatchStack(event,stack);
+			if(event.__updateAfterEventFlag) {
+				this.__renderAfterEvent();
 			}
 		}
 		if(this.__dragObject != null) {
@@ -105944,6 +106326,9 @@ openfl_display__$internal_CanvasTextField.render = function(textField,renderer,t
 		graphics.__bounds.copyFrom(bounds);
 	}
 	var pixelRatio = renderer.__pixelRatio;
+	if(graphics.__bitmapScaleX != pixelRatio || graphics.__bitmapScaleY != pixelRatio) {
+		graphics.__softwareDirty = true;
+	}
 	graphics.__update(renderer.__worldTransform,pixelRatio);
 	if(textField.__dirty || graphics.__softwareDirty) {
 		var width = Math.round(graphics.__width * pixelRatio);
@@ -106255,6 +106640,9 @@ openfl_display__$internal_CanvasTextField.renderDrawable = function(textField,re
 				graphics.__bounds.copyFrom(bounds);
 			}
 			var pixelRatio = renderer.__pixelRatio;
+			if(graphics.__bitmapScaleX != pixelRatio || graphics.__bitmapScaleY != pixelRatio) {
+				graphics.__softwareDirty = true;
+			}
 			graphics.__update(renderer.__worldTransform,pixelRatio);
 			if(textField.__dirty || graphics.__softwareDirty) {
 				var width = Math.round(graphics.__width * pixelRatio);
@@ -109987,7 +110375,7 @@ openfl_display__$internal_Context3DGraphics.render = function(graphics,renderer)
 					if(bitmap != null && uvDataLength == 0) {
 						uvDataLength = verticesLength;
 					}
-					if(bitmap != null || uvDataLength == 0 && fill != null) {
+					if(bitmap != null || shaderBuffer != null || uvDataLength == 0 && fill != null) {
 						var numVertices2 = Math.floor(verticesLength / 2);
 						var length = indicesLength > 0 ? indicesLength : numVertices2;
 						var hasUVTData = uvDataLength >= numVertices2 * 3;
@@ -110158,7 +110546,7 @@ openfl_display__$internal_Context3DGraphics.render = function(graphics,renderer)
 					if(bitmap != null && uvDataLength1 == 0) {
 						uvDataLength1 = verticesLength1;
 					}
-					if(bitmap != null || uvDataLength1 == 0 && fill != null) {
+					if(bitmap != null || shaderBuffer != null || uvDataLength1 == 0 && fill != null) {
 						var numVertices5 = Math.floor(verticesLength1 / 2);
 						var length1 = indicesLength1 > 0 ? indicesLength1 : numVertices5;
 						var hasUVTData1 = uvDataLength1 >= numVertices5 * 3;
@@ -110458,7 +110846,7 @@ openfl_display__$internal_Context3DGraphics.render = function(graphics,renderer)
 						if(bitmap != null && uvDataLength2 == 0) {
 							uvDataLength2 = 8;
 						}
-						if(bitmap != null || uvDataLength2 == 0 && fill != null) {
+						if(bitmap != null || shaderBuffer != null || uvDataLength2 == 0 && fill != null) {
 							var numVertices6 = 4;
 							var length3 = 6;
 							var hasUVTData2 = uvDataLength2 >= numVertices6 * 3;
@@ -110673,7 +111061,7 @@ openfl_display__$internal_Context3DGraphics.render = function(graphics,renderer)
 					if(bitmap != null && uvDataLength3 == 0) {
 						uvDataLength3 = verticesLength2;
 					}
-					if(bitmap != null || uvDataLength3 == 0 && fill != null) {
+					if(bitmap != null || shaderBuffer != null || uvDataLength3 == 0 && fill != null) {
 						var numVertices8 = Math.floor(verticesLength2 / 2);
 						var length4 = indicesLength2 > 0 ? indicesLength2 : numVertices8;
 						var hasUVTData3 = uvDataLength3 >= numVertices8 * 3;
@@ -110838,7 +111226,7 @@ openfl_display__$internal_Context3DGraphics.render = function(graphics,renderer)
 					if(bitmap != null && uvDataLength4 == 0) {
 						uvDataLength4 = verticesLength3;
 					}
-					if(bitmap != null || uvDataLength4 == 0 && fill != null) {
+					if(bitmap != null || shaderBuffer != null || uvDataLength4 == 0 && fill != null) {
 						var numVertices9 = Math.floor(verticesLength3 / 2);
 						var length5 = indicesLength3 > 0 ? indicesLength3 : numVertices9;
 						var hasUVTData4 = uvDataLength4 >= numVertices9 * 3;
@@ -111689,6 +112077,9 @@ openfl_display__$internal_Context3DTextField.render = function(textField,rendere
 		graphics.__bounds.copyFrom(bounds);
 	}
 	var pixelRatio = renderer1.__pixelRatio;
+	if(graphics.__bitmapScaleX != pixelRatio || graphics.__bitmapScaleY != pixelRatio) {
+		graphics.__softwareDirty = true;
+	}
 	graphics.__update(renderer1.__worldTransform,pixelRatio);
 	if(textField.__dirty || graphics.__softwareDirty) {
 		var width = Math.round(graphics.__width * pixelRatio);
@@ -111991,6 +112382,9 @@ openfl_display__$internal_Context3DTextField.renderMask = function(textField,ren
 		graphics.__bounds.copyFrom(bounds);
 	}
 	var pixelRatio = renderer1.__pixelRatio;
+	if(graphics.__bitmapScaleX != pixelRatio || graphics.__bitmapScaleY != pixelRatio) {
+		graphics.__softwareDirty = true;
+	}
 	graphics.__update(renderer1.__worldTransform,pixelRatio);
 	if(textField.__dirty || graphics.__softwareDirty) {
 		var width = Math.round(graphics.__width * pixelRatio);
@@ -132350,6 +132744,81 @@ openfl_utils__$internal_format_amf3_AMF3Writer.prototype = {
 	}
 	,__class__: openfl_utils__$internal_format_amf3_AMF3Writer
 };
+var states_DragDropTestState = function() {
+	flixel_FlxState.call(this);
+};
+$hxClasses["states.DragDropTestState"] = states_DragDropTestState;
+states_DragDropTestState.__name__ = "states.DragDropTestState";
+states_DragDropTestState.__super__ = flixel_FlxState;
+states_DragDropTestState.prototype = $extend(flixel_FlxState.prototype,{
+	create: function() {
+		flixel_FlxState.prototype.create.call(this);
+		this.dragManager = new dragdrop_DragManager();
+		this.add(this.dragManager);
+		var target = new entities_test_DropTarget(150,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(250,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(350,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(450,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(550,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(650,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(750,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(850,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(950,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var target = new entities_test_DropTarget(1050,150,null,["entities.test.DraggableSprite"]);
+		target.makeGraphic(80,80,-2008791996);
+		this.add(target);
+		this.dragManager.addTarget(target);
+		var item1 = new entities_test_DraggableSprite(100,200);
+		item1.makeGraphic(64,64,-12285697);
+		this.add(item1);
+		this.dragManager.register(item1);
+		var item2 = new entities_test_DraggableSprite(200,200);
+		item2.makeGraphic(64,64,-12255352);
+		this.add(item2);
+		this.dragManager.register(item2);
+		var text = new flixel_text_FlxText(10,10,0,"Drag the colored squares to the gray targets");
+		this.add(text);
+		this.dragManager.events.onDragStart = function(draggable,pointer) {
+			flixel_FlxG.log.advanced("Drag started!",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 49, className : "states.DragDropTestState", methodName : "create"});
+		};
+		this.dragManager.events.onDrop = function(draggable,target) {
+			flixel_FlxG.log.advanced("Dropped on target!",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 54, className : "states.DragDropTestState", methodName : "create"});
+		};
+		this.dragManager.events.onDragEnd = function(draggable,pointer,droppedOn) {
+			if(droppedOn == null) {
+				flixel_FlxG.log.advanced("Returned to original position",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 61, className : "states.DragDropTestState", methodName : "create"});
+			}
+		};
+	}
+	,__class__: states_DragDropTestState
+});
 var states_FlxCstyLogo = function() {
 	this.logoFinished = false;
 	this.timer = 0.05;
@@ -132520,6 +132989,19 @@ states_MainMenuState.prototype = $extend(flixel_FlxState.prototype,{
 				}
 			});
 		});
+		mainPage.addItem("Test Drag & Drop",function() {
+			var nextState = flixel_util_typeLimit_NextState.fromMaker(function() {
+				return new states_DragDropTestState();
+			});
+			var stateOnCall = flixel_FlxG.game._state;
+			flixel_FlxG.game._state.startOutro(function() {
+				if(flixel_FlxG.game._state == stateOnCall) {
+					flixel_FlxG.game._nextState = nextState;
+				} else {
+					flixel_FlxG.log.advanced("`onOutroComplete` was called after the state was switched. This will be ignored",flixel_system_debug_log_LogStyle.WARNING,true,{ fileName : "flixel/FlxG.hx", lineNumber : 385, className : "flixel.FlxG", methodName : "switchState"});
+				}
+			});
+		});
 		mainPage.addItem("Toggle Fullscreen",function() {
 			flixel_FlxG.set_fullscreen(!flixel_FlxG.get_fullscreen());
 		});
@@ -132536,7 +133018,7 @@ states_MainMenuState.prototype = $extend(flixel_FlxState.prototype,{
 				this.remove(this.controllerCaptureText);
 				this.add(this.menu);
 				if(gamepad) {
-					flixel_FlxG.log.advanced("Controller input detected in menu",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/MenuState.hx", lineNumber : 73, className : "states.MainMenuState", methodName : "update"});
+					flixel_FlxG.log.advanced("Controller input detected in menu",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/MenuState.hx", lineNumber : 77, className : "states.MainMenuState", methodName : "update"});
 					this.globalState.usingController = true;
 				}
 			}
@@ -132752,12 +133234,7 @@ if(console.log == null) {
 	console.log = function() {
 	};
 }
-var loaders = [new openfl_display__$internal_BitmapDataLoader(),new openfl_display__$internal_ScriptLoader(),new openfl_display__$internal_AssetManifestLoader()];
-if(openfl_display_Loader.__registeredLoaders == null) {
-	openfl_display_Loader.__registeredLoaders = loaders;
-} else {
-	openfl_display_Loader.__registeredLoaders = loaders.concat(openfl_display_Loader.__registeredLoaders);
-}
+openfl_display_Loader.__registerDefaultLoaders();
 openfl_display__$internal_CanvasGraphics.hitTestCanvas = js_Browser.get_supported() ? window.document.createElement("canvas") : null;
 openfl_display__$internal_CanvasGraphics.hitTestContext = js_Browser.get_supported() ? openfl_display__$internal_CanvasGraphics.hitTestCanvas.getContext("2d") : null;
 openfl_ui_Multitouch.maxTouchPoints = 2;
