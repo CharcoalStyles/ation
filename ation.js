@@ -6293,7 +6293,6 @@ var dragdrop_DragManager = function() {
 	this.activePointerId = -1;
 	this.activeDrag = null;
 	flixel_FlxBasic.call(this);
-	dragdrop_DragManager.instance = this;
 	this.draggables = [];
 	this.targets = [];
 	this.events = new dragdrop_DragEvents();
@@ -82363,7 +82362,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 729827;
+	this.version = 305100;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -132806,14 +132805,14 @@ states_DragDropTestState.prototype = $extend(flixel_FlxState.prototype,{
 		var text = new flixel_text_FlxText(10,10,0,"Drag the colored squares to the gray targets");
 		this.add(text);
 		this.dragManager.events.onDragStart = function(draggable,pointer) {
-			flixel_FlxG.log.advanced("Drag started!",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 49, className : "states.DragDropTestState", methodName : "create"});
+			flixel_FlxG.log.advanced("Drag started!",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 48, className : "states.DragDropTestState", methodName : "create"});
 		};
 		this.dragManager.events.onDrop = function(draggable,target) {
-			flixel_FlxG.log.advanced("Dropped on target!",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 54, className : "states.DragDropTestState", methodName : "create"});
+			flixel_FlxG.log.advanced("Dropped on target!",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 53, className : "states.DragDropTestState", methodName : "create"});
 		};
 		this.dragManager.events.onDragEnd = function(draggable,pointer,droppedOn) {
 			if(droppedOn == null) {
-				flixel_FlxG.log.advanced("Returned to original position",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 61, className : "states.DragDropTestState", methodName : "create"});
+				flixel_FlxG.log.advanced("Returned to original position",flixel_system_debug_log_LogStyle.NORMAL,false,{ fileName : "source/states/DragDropTestState.hx", lineNumber : 60, className : "states.DragDropTestState", methodName : "create"});
 			}
 		};
 	}
