@@ -46,6 +46,10 @@ class MainMenuState extends FlxState
 		{
 			FlxG.switchState(TestSpriteSheetState.new);
 		});
+		mainPage.addItem("Test Drag & Drop", () ->
+		{
+			FlxG.switchState(DragDropTestState.new);
+		});
 		mainPage.addItem("Toggle Fullscreen", () -> FlxG.fullscreen = !FlxG.fullscreen);
 
 		// add(menu);
